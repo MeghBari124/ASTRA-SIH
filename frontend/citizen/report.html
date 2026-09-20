@@ -3,289 +3,391 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Citizen SafeReport — ASTRA</title>
+  <title>SafeReport — ASTRA Civic Safety</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #090d16;
-      --card-bg: rgba(18, 25, 43, 0.85);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --accent-cyan: #00f2fe;
-      --accent-blue: #0072ff;
-      --accent-green: #00df89;
-      --accent-red: #ff3366;
+      --bg-base: #0a0c10;
+      --bg-card: #12161f;
+      --bg-input: #181d28;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
       --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      --brand: #2563eb;
+      --brand-hover: #1d4ed8;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background: var(--bg-dark);
-      background-image: radial-gradient(circle at 50% 0%, rgba(0, 198, 255, 0.12) 0%, transparent 60%);
+      background: var(--bg-base);
       color: var(--text-main);
+      font-family: var(--font-sans);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
 
     header {
       padding: 16px 32px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--card-border);
-      background: rgba(9, 13, 22, 0.9);
-      backdrop-filter: blur(10px);
+      background: rgba(10, 12, 16, 0.8);
+      backdrop-filter: blur(12px);
     }
 
     .nav-back {
-      color: var(--accent-cyan);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-sub);
       text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-back:hover { color: var(--text-main); }
+
+    .security-badge {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.08);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
     .container {
-      max-width: 680px;
+      max-width: 640px;
       width: 100%;
-      margin: 36px auto;
+      margin: 40px auto;
       padding: 0 20px;
       flex: 1;
     }
 
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       padding: 36px;
-      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(16px);
+    }
+
+    .card-header {
+      margin-bottom: 28px;
     }
 
     .card-title {
-      font-size: 24px;
-      font-weight: 800;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.4px;
+      color: var(--text-main);
       margin-bottom: 8px;
     }
 
-    .card-subtitle {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 28px;
-      line-height: 1.5;
+    .card-desc {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-sub);
     }
 
-    .form-group {
+    .form-section {
       margin-bottom: 24px;
     }
 
-    .form-label {
+    .section-label {
       display: block;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #cbd5e1;
-      margin-bottom: 10px;
+      font-family: var(--font-mono);
     }
 
-    .categories-grid {
+    /* Clean Category Selector */
+    .category-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
     }
 
-    .cat-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px 10px;
-      color: #cbd5e1;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
-
-    .cat-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .cat-btn.active {
-      background: rgba(0, 242, 254, 0.15);
-      border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
-    }
-
-    .coords-bar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .input-field {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
+    .category-pill {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       padding: 12px 16px;
-      color: white;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.15s ease;
+    }
+
+    .category-pill:hover {
+      border-color: var(--border-hover);
+      color: var(--text-main);
+    }
+
+    .category-pill.selected {
+      background: rgba(37, 99, 235, 0.12);
+      border-color: var(--brand);
+      color: #93c5fd;
+    }
+
+    /* GPS Coordinates */
+    .coords-wrapper {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .input-text {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-main);
       outline: none;
-      transition: border-color 0.2s;
+      font-family: var(--font-sans);
+      transition: border-color 0.15s;
     }
 
-    .input-field:focus {
-      border-color: var(--accent-cyan);
+    .input-text:focus {
+      border-color: var(--brand);
     }
 
-    textarea.input-field {
+    textarea.input-text {
       resize: vertical;
-      min-height: 100px;
+      min-height: 96px;
+      line-height: 1.5;
     }
 
     .btn-gps {
-      padding: 12px 18px;
-      background: rgba(0, 242, 254, 0.12);
-      border: 1px solid var(--accent-cyan);
-      color: var(--accent-cyan);
-      border-radius: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 16px;
+      font-size: 12px;
       font-weight: 600;
-      font-size: 13px;
+      color: var(--text-main);
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
 
     .btn-gps:hover {
-      background: var(--accent-cyan);
-      color: #000;
+      border-color: var(--text-sub);
     }
 
-    .severity-slider {
+    /* Severity Range */
+    .severity-control {
+      margin-top: 6px;
+    }
+
+    .severity-track {
       width: 100%;
-      accent-color: var(--accent-red);
+      accent-color: var(--rose);
       cursor: pointer;
     }
 
-    .severity-labels {
+    .severity-meta {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
+      font-family: var(--font-mono);
       margin-top: 6px;
+    }
+
+    /* Privacy Reassurance Note */
+    .privacy-notice {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
     }
 
     .btn-submit {
       width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      border: none;
-      border-radius: 14px;
+      background: var(--brand);
       color: white;
-      font-size: 16px;
-      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 12px;
-      transition: opacity 0.2s;
+      transition: background-color 0.15s;
     }
 
     .btn-submit:hover {
-      opacity: 0.92;
+      background: var(--brand-hover);
     }
 
-    .alert-success {
+    .receipt-panel {
       display: none;
-      background: rgba(0, 223, 137, 0.1);
-      border: 1px solid var(--accent-green);
-      color: var(--accent-green);
-      padding: 16px;
-      border-radius: 12px;
-      margin-top: 20px;
-      font-size: 14px;
+      background: rgba(16, 185, 129, 0.06);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .receipt-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--emerald);
+      margin-bottom: 6px;
+    }
+
+    .receipt-text {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.6;
+      margin-bottom: 18px;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <a href="/" class="nav-back">← Back to ASTRA Portal</a>
-    <div style="font-size: 13px; color: var(--text-muted);">Confidential & Encrypted</div>
+    <a href="/" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Return to Platform</span>
+    </a>
+    <div class="security-badge">
+      <span>● END-TO-END ENCRYPTED</span>
+    </div>
   </header>
 
   <div class="container">
     <div class="card">
-      <h2 class="card-title">🛡️ Report Safety Concern</h2>
-      <p class="card-subtitle">Every warning sign matters. Submitting early signs helps ASTRA identify patterns before incidents escalate.</p>
+      <div class="card-header">
+        <h1 class="card-title">Record Safety Observation</h1>
+        <p class="card-desc">
+          Early reporting of repeated minor disturbances allows ASTRA's intelligence engine to uncover hidden patterns before they escalate.
+        </p>
+      </div>
 
       <form id="reportForm">
-        <div class="form-group">
-          <label class="form-label">Category of Concern</label>
-          <div class="categories-grid" id="categoryPills">
-            <div class="cat-btn active" data-cat="stalking">Stalking / Following</div>
-            <div class="cat-btn" data-cat="verbal_harassment">Verbal Harassment</div>
-            <div class="cat-btn" data-cat="dim_lighting">Broken Lights</div>
-            <div class="cat-btn" data-cat="catcalling_loitering">Suspicious Group</div>
-            <div class="cat-btn" data-cat="physical_intimidation">Intimidation</div>
-            <div class="cat-btn" data-cat="other">Other Concern</div>
+        <!-- Category Selection -->
+        <div class="form-section">
+          <label class="section-label">Incident Type</label>
+          <div class="category-grid" id="categoryGrid">
+            <div class="category-pill selected" data-cat="stalking">
+              <span>👤</span> Stalking / Trailing
+            </div>
+            <div class="category-pill" data-cat="verbal_harassment">
+              <span>🗣️</span> Verbal Harassment
+            </div>
+            <div class="category-pill" data-cat="catcalling_loitering">
+              <span>👥</span> Loitering / Intimidation
+            </div>
+            <div class="category-pill" data-cat="dim_lighting">
+              <span>💡</span> Dark / Broken Lighting
+            </div>
+            <div class="category-pill" data-cat="physical_intimidation">
+              <span>⚠️</span> Aggressive Posture
+            </div>
+            <div class="category-pill" data-cat="other">
+              <span>📝</span> Other Concern
+            </div>
           </div>
           <input type="hidden" id="incidentType" value="stalking">
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Location Coordinates</label>
-          <div class="coords-bar">
-            <input type="number" step="0.000001" id="latitude" class="input-field" placeholder="Latitude" value="12.9716" required>
-            <input type="number" step="0.000001" id="longitude" class="input-field" placeholder="Longitude" value="77.5946" required>
+        <!-- Coordinates -->
+        <div class="form-section">
+          <label class="section-label">Location Coordinates</label>
+          <div class="coords-wrapper">
+            <input type="number" step="0.000001" id="latitude" class="input-text" placeholder="Latitude" value="12.9716" required>
+            <input type="number" step="0.000001" id="longitude" class="input-text" placeholder="Longitude" value="77.5946" required>
             <button type="button" class="btn-gps" id="btnGps">📍 Detect GPS</button>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Severity Assessment</label>
-          <input type="range" min="1" max="5" value="3" class="severity-slider" id="severityInput">
-          <div class="severity-labels">
-            <span>1 - Low / Unease</span>
-            <span>3 - Moderate / Active Threat</span>
-            <span style="color: var(--accent-red);">5 - Extreme / Emergency</span>
+        <!-- Severity Slider -->
+        <div class="form-section">
+          <label class="section-label">Perceived Threat Severity</label>
+          <div class="severity-control">
+            <input type="range" min="1" max="5" value="3" class="severity-track" id="severityInput">
+            <div class="severity-meta">
+              <span>1: Minor Unease</span>
+              <span>3: Definite Threat</span>
+              <span>5: Severe Imminent Danger</span>
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Description (What did you observe?)</label>
-          <textarea id="description" class="input-field" placeholder="E.g., Two individuals loitering near corner alley, making threatening gestures at passersby..."></textarea>
+        <!-- Narrative Description -->
+        <div class="form-section">
+          <label class="section-label">Context / Observations (Optional)</label>
+          <textarea id="description" class="input-text" placeholder="Provide factual context: specific landmark, recurring timing, or physical behavior observed..."></textarea>
         </div>
 
-        <button type="submit" class="btn-submit" id="btnSubmit">Submit Anonymous Report</button>
+        <!-- Privacy notice -->
+        <div class="privacy-notice">
+          <span>🔒</span>
+          <span>
+            <strong>Privacy Safeguard:</strong> Submissions are logged under an ephemeral cryptographic token. Personal identities are strictly omitted from municipal threat maps.
+          </span>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnSubmit">Transmitting Safety Report</button>
       </form>
 
-      <div class="alert-success" id="successMsg">
-        <strong>✓ Report Recorded Successfully!</strong>
-        <p id="receiptText" style="margin-top: 6px; font-size: 13px; color: #cbd5e1;"></p>
+      <!-- Receipt Confirmation -->
+      <div class="receipt-panel" id="receiptPanel">
+        <div class="receipt-title">Observation Ingested</div>
+        <p class="receipt-text" id="receiptText"></p>
+        <button type="button" class="btn-submit" style="width:auto; padding:8px 20px; font-size:12px;" onclick="resetForm()">Submit Another Report</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Category pills logic
-    const pills = document.querySelectorAll('.cat-btn');
+    // Category pill selection
+    const pills = document.querySelectorAll('.category-pill');
     const typeInput = document.getElementById('incidentType');
-    pills.forEach(btn => {
-      btn.addEventListener('click', () => {
-        pills.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        typeInput.value = btn.dataset.cat;
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+        typeInput.value = pill.dataset.cat;
       });
     });
 
-    // Geolocation detection
+    // Geolocation
     document.getElementById('btnGps').addEventListener('click', () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -293,7 +395,7 @@
             document.getElementById('latitude').value = pos.coords.latitude.toFixed(6);
             document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
           },
-          err => alert("Location access denied or unavailable. Using default coordinates.")
+          err => alert("GPS coordinates locked to sector default.")
         );
       }
     });
@@ -303,7 +405,7 @@
       e.preventDefault();
       const btn = document.getElementById('btnSubmit');
       btn.disabled = true;
-      btn.innerText = "Transmitting to ASTRA Intelligence Engine...";
+      btn.innerText = "Transmitting to ASTRA Ingestion Engine...";
 
       const payload = {
         incident_type: typeInput.value,
@@ -325,21 +427,28 @@
         if (res.ok) {
           const data = await res.json();
           document.getElementById('reportForm').style.display = 'none';
-          const successDiv = document.getElementById('successMsg');
-          successDiv.style.display = 'block';
-          document.getElementById('receiptText').innerText = 
-            `Incident Ref: ${data.id.substring(0, 8)}... has been ingested. ASTRA pattern clustering has been updated in real-time.`;
+          document.getElementById('receiptPanel').style.display = 'block';
+          document.getElementById('receiptText').innerHTML = 
+            `Report <code>${data.id.substring(0, 8)}</code> received.<br>ASTRA has recalculated spatial-temporal clusters in this coordinate radius.`;
         } else {
-          alert("Submission error. Please check inputs.");
+          alert("Submission failed. Please check inputs.");
           btn.disabled = false;
-          btn.innerText = "Submit Anonymous Report";
+          btn.innerText = "Transmitting Safety Report";
         }
       } catch (err) {
-        alert("Connection error to ASTRA backend: " + err.message);
+        alert("Connection error: " + err.message);
         btn.disabled = false;
-        btn.innerText = "Submit Anonymous Report";
+        btn.innerText = "Transmitting Safety Report";
       }
     });
+
+    function resetForm() {
+      document.getElementById('reportForm').style.display = 'block';
+      document.getElementById('receiptPanel').style.display = 'none';
+      document.getElementById('description').value = '';
+      document.getElementById('btnSubmit').disabled = false;
+      document.getElementById('btnSubmit').innerText = "Transmitting Safety Report";
+    }
   </script>
 </body>
 </html>

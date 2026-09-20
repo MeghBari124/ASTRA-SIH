@@ -3,351 +3,411 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Authority Intelligence Dashboard — ASTRA</title>
+  <title>Authority Intelligence Command — ASTRA</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <!-- Chart.js for Timelines & Trend Analysis -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-dark: #070a12;
-      --card-bg: rgba(15, 22, 38, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent-cyan: #00f2fe;
-      --accent-purple: #7928ca;
-      --accent-pink: #ff0080;
-      --accent-red: #ff3366;
-      --accent-yellow: #ffb800;
-      --accent-green: #00df89;
+      --bg-base: #07090e;
+      --bg-surface: #0e111a;
+      --bg-elevated: #141824;
+      --bg-hover: #1b2132;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 255, 255, 0.18);
       --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+      
+      --brand-blue: #3b82f6;
+      --brand-indigo: #6366f1;
+      --status-red: #ef4444;
+      --status-amber: #f59e0b;
+      --status-emerald: #10b981;
+      --status-sky: #0ea5e9;
+
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background: var(--bg-dark);
+      background: var(--bg-base);
       color: var(--text-main);
+      font-family: var(--font-sans);
+      font-feature-settings: "tnum";
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
 
+    /* Command Header */
     header {
-      padding: 16px 36px;
+      height: 60px;
+      padding: 0 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--card-border);
-      background: rgba(7, 10, 18, 0.95);
-      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 9, 14, 0.95);
       position: sticky;
       top: 0;
       z-index: 1000;
     }
 
-    .brand-title {
+    .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
 
-    .logo-badge {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
-      border-radius: 10px;
+    .brand-mark {
+      width: 26px;
+      height: 26px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      color: white;
-      font-size: 18px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
     }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .btn-refresh {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--accent-cyan);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
+    .brand-title {
+      font-size: 14px;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      letter-spacing: -0.2px;
     }
 
-    .btn-refresh:hover { background: rgba(0, 242, 254, 0.1); border-color: var(--accent-cyan); }
-
-    /* Top Pilot Success Metrics Bar (matching Slide 9) */
-    .metrics-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      padding: 20px 36px 0 36px;
-      max-width: 1700px;
-      width: 100%;
-      margin: 0 auto;
+    .header-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-left: 12px;
+      border-left: 1px solid var(--border);
     }
 
-    .metric-pill {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 14px 18px;
+    .header-actions {
       display: flex;
       align-items: center;
       gap: 14px;
     }
 
-    .metric-icon {
-      font-size: 24px;
-      width: 44px;
-      height: 44px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .metric-label {
+    .btn-action-ghost {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .metric-val {
-      font-size: 18px;
-      font-weight: 800;
-      color: white;
-      margin-top: 2px;
-    }
-
-    /* Filter & Search Bar (Slide 8 Phase 3) */
-    .filter-bar {
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 18px 36px 0 36px;
-      max-width: 1700px;
-      width: 100%;
-      margin: 0 auto;
-      flex-wrap: wrap;
+      gap: 6px;
+      transition: all 0.15s;
     }
 
-    .filter-pills {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .btn-action-ghost:hover {
+      border-color: var(--text-sub);
+      color: var(--text-main);
     }
 
-    .filter-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 6px 16px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #cbd5e1;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .filter-btn.active {
-      background: rgba(0, 242, 254, 0.15);
-      border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
-    }
-
-    .search-input {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 8px 16px;
-      color: white;
-      font-size: 13px;
-      outline: none;
-      min-width: 260px;
-    }
-
-    .main-grid {
+    /* Pilot Success Metrics Bar (Slide 9) */
+    .metrics-strip {
       display: grid;
-      grid-template-columns: 1.3fr 1fr;
-      gap: 24px;
-      padding: 20px 36px 36px 36px;
-      flex: 1;
-      max-width: 1700px;
-      width: 100%;
-      margin: 0 auto;
+      grid-template-columns: repeat(5, 1fr);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
     }
 
     @media (max-width: 1100px) {
-      .main-grid { grid-template-columns: 1fr; }
+      .metrics-strip { grid-template-columns: repeat(2, 1fr); }
     }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 24px;
-      backdrop-filter: blur(16px);
+    .metric-cell {
+      padding: 14px 28px;
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
+      gap: 2px;
+    }
+
+    .metric-cell:last-child { border-right: none; }
+
+    .metric-cell-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .metric-cell-val {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .metric-cell-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    /* Filters & Controls */
+    .controls-strip {
+      padding: 12px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-base);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--border-focus);
+      color: var(--text-main);
+    }
+
+    .filter-btn.active {
+      background: var(--bg-elevated);
+      border-color: var(--brand-blue);
+      color: var(--text-main);
+    }
+
+    .search-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      outline: none;
+      min-width: 240px;
+    }
+
+    .search-box:focus { border-color: var(--brand-blue); }
+
+    /* Main Console Grid */
+    .console-layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      flex: 1;
+      min-height: calc(100vh - 170px);
+    }
+
+    @media (max-width: 1100px) {
+      .console-layout { grid-template-columns: 1fr; }
+    }
+
+    .map-column {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: #000;
     }
 
     #map {
       width: 100%;
-      height: 480px;
-      border-radius: 14px;
-      border: 1px solid var(--card-border);
-      margin-top: 14px;
+      height: 520px;
+      background: #090a0f;
     }
 
-    /* Timeline Section (Slide 5 Step 6 & Slide 6 #5) */
-    .timeline-container {
-      margin-top: 20px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 16px;
+    /* Trend Chart Section */
+    .chart-section {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-surface);
+      flex: 1;
     }
 
-    .timeline-header {
-      font-size: 13px;
-      font-weight: 700;
-      color: #cbd5e1;
+    .chart-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
     }
 
-    .patterns-header {
+    .chart-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Patterns Column */
+    .patterns-column {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-base);
+    }
+
+    .patterns-column-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
+      background: var(--bg-surface);
     }
 
     .patterns-list {
+      padding: 20px 24px;
       display: flex;
       flex-direction: column;
       gap: 16px;
       overflow-y: auto;
-      max-height: 860px;
-      padding-right: 4px;
+      max-height: calc(100vh - 240px);
     }
 
+    /* Pattern Card */
     .pattern-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
-      transition: all 0.2s ease;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
 
     .pattern-card:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
+      background: var(--bg-elevated);
+      border-color: var(--border-focus);
     }
 
-    .pattern-top {
+    .pattern-top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .pattern-level-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 800;
+    .level-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
-    .badge-ESCALATING { background: rgba(255, 51, 102, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
-    .badge-CONCERNING { background: rgba(255, 184, 0, 0.2); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
-    .badge-EMERGING { background: rgba(0, 242, 254, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-    .badge-NORMAL { background: rgba(0, 223, 137, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .level-ESCALATING { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .level-CONCERNING { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .level-EMERGING { background: rgba(59, 130, 246, 0.12); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .level-NORMAL { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-    .risk-score-display {
-      font-size: 20px;
-      font-weight: 800;
+    .risk-num {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
     }
 
-    .pattern-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: white;
+    .pattern-heading {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
       margin-bottom: 6px;
     }
 
-    .pattern-explanation {
-      font-size: 13px;
-      color: #cbd5e1;
-      line-height: 1.5;
+    .pattern-narrative {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text-sub);
       margin-bottom: 14px;
     }
 
-    /* Sub-score progress bars */
-    .bars-grid {
+    /* Sub-signal breakdown gauge rows */
+    .signals-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
       margin-bottom: 14px;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 12px;
-      border-radius: 10px;
     }
 
-    .bar-item {
+    .signal-item {
       font-size: 11px;
+      font-family: var(--font-mono);
       color: var(--text-muted);
     }
 
-    .bar-track {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
+    .signal-item span {
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    .signal-bar-track {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
       overflow: hidden;
       margin-top: 4px;
     }
 
-    .bar-fill {
+    .signal-bar-fill {
       height: 100%;
-      border-radius: 3px;
+      border-radius: 2px;
+      background: var(--brand-blue);
     }
 
-    .btn-review {
+    .btn-review-trigger {
       width: 100%;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      color: white;
-      font-size: 13px;
-      font-weight: 700;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font-mono);
       cursor: pointer;
-      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s;
     }
 
-    .btn-review:hover {
-      background: var(--accent-purple);
-      border-color: var(--accent-purple);
+    .btn-review-trigger:hover {
+      background: var(--text-main);
+      color: var(--bg-base);
     }
 
     /* Review Modal */
@@ -355,209 +415,207 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(8px);
       z-index: 2000;
       align-items: center;
       justify-content: center;
     }
 
-    .modal-card {
-      background: #0d1322;
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 32px;
-      max-width: 540px;
+    .modal-sheet {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      max-width: 520px;
       width: 90%;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.8);
     }
 
-    .modal-card h3 {
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 8px;
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
     }
 
-    .modal-field {
+    .modal-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .modal-group {
       margin-bottom: 16px;
     }
 
-    .modal-field label {
+    .modal-label {
       display: block;
-      font-size: 12px;
-      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 10px;
       text-transform: uppercase;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
-    .modal-select, .modal-textarea {
+    .modal-input {
       width: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px;
-      color: white;
-      font-size: 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-main);
       outline: none;
+      font-family: var(--font-sans);
     }
 
     .modal-actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       margin-top: 24px;
     }
 
-    .btn-cancel {
+    .btn-modal-cancel {
       flex: 1;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-weight: 600;
+      padding: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 12px;
+      font-family: var(--font-mono);
     }
 
-    .btn-confirm {
+    .btn-modal-submit {
       flex: 1;
-      padding: 12px;
-      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      padding: 10px;
+      background: var(--brand-blue);
       border: none;
-      border-radius: 10px;
-      color: white;
-      font-weight: 700;
+      color: #ffffff;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-mono);
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="brand-title">
-      <div class="logo-badge">A</div>
-      <div>
-        <h2 style="font-size: 17px; font-weight: 800;">ASTRA Intelligence Command</h2>
-        <p style="font-size: 11px; color: var(--accent-pink);">Authority Threat Detection Console &bull; Code Sentinel CX1001</p>
-      </div>
+    <div class="header-left">
+      <div class="brand-mark">A</div>
+      <div class="brand-title">ASTRA Intelligence Command</div>
+      <div class="header-tag">CX1001 &bull; BANGALORE CENTRAL SECTOR</div>
     </div>
-    <div class="nav-actions">
-      <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 13px;">Portal</a>
-      <button class="btn-refresh" onclick="refreshEngine()">⚡ Recalculate Clusters</button>
+    <div class="header-actions">
+      <a href="/" class="btn-action-ghost">&larr; PLATFORM PORTAL</a>
+      <button class="btn-action-ghost" onclick="triggerRefresh()">⚡ SYNC GIS & DBSCAN</button>
     </div>
   </header>
 
-  <!-- Slide 9: Pilot Success Metrics Row -->
-  <div class="metrics-bar">
-    <div class="metric-pill">
-      <div class="metric-icon" style="color: var(--accent-cyan);">🎯</div>
-      <div>
-        <div class="metric-label">Pattern Precision</div>
-        <div class="metric-val">94.2%</div>
-      </div>
+  <!-- Pilot Success Metrics Bar (Slide 9) -->
+  <div class="metrics-strip">
+    <div class="metric-cell">
+      <div class="metric-cell-label">Detection Precision</div>
+      <div class="metric-cell-val" style="color: var(--brand-blue);">94.2%</div>
+      <div class="metric-cell-sub">Validated patterns / total alerts</div>
     </div>
-    <div class="metric-pill">
-      <div class="metric-icon" style="color: var(--accent-green);">🛡️</div>
-      <div>
-        <div class="metric-label">False Alert Rate</div>
-        <div class="metric-val">3.8%</div>
-      </div>
+    <div class="metric-cell">
+      <div class="metric-cell-label">False Alert Rate</div>
+      <div class="metric-cell-val" style="color: var(--status-emerald);">3.8%</div>
+      <div class="metric-cell-sub">Dismissed by authority review</div>
     </div>
-    <div class="metric-pill">
-      <div class="metric-icon" style="color: var(--accent-yellow);">⏱️</div>
-      <div>
-        <div class="metric-label">Detection Lead Time</div>
-        <div class="metric-val">3.2 Days</div>
-      </div>
+    <div class="metric-cell">
+      <div class="metric-cell-label">Detection Lead Time</div>
+      <div class="metric-cell-val" style="color: var(--status-amber);">3.2 Days</div>
+      <div class="metric-cell-sub">Identified prior to major incident</div>
     </div>
-    <div class="metric-pill">
-      <div class="metric-icon" style="color: var(--accent-pink);">⚡</div>
-      <div>
-        <div class="metric-label">Authority Response</div>
-        <div class="metric-val">&lt; 15 Mins</div>
-      </div>
+    <div class="metric-cell">
+      <div class="metric-cell-label">Authority Response</div>
+      <div class="metric-cell-val" style="color: var(--text-main);">&lt; 14 Mins</div>
+      <div class="metric-cell-sub">Average review & directive commit</div>
     </div>
-    <div class="metric-pill">
-      <div class="metric-icon" style="color: var(--accent-purple);">👥</div>
-      <div>
-        <div class="metric-label">Reporter Diversity</div>
-        <div class="metric-val">3.6 Sources</div>
-      </div>
+    <div class="metric-cell">
+      <div class="metric-cell-label">Reporter Diversity</div>
+      <div class="metric-cell-val" style="color: var(--brand-indigo);">3.6 Sources</div>
+      <div class="metric-cell-sub">Average independent corroboration</div>
     </div>
   </div>
 
-  <!-- Slide 8: Filtering & Search Bar -->
-  <div class="filter-bar">
-    <div class="filter-pills">
-      <button class="filter-btn active" onclick="setFilter('ALL')">All Patterns</button>
-      <button class="filter-btn" onclick="setFilter('ESCALATING')">🔴 Escalating</button>
-      <button class="filter-btn" onclick="setFilter('CONCERNING')">🟡 Concerning</button>
-      <button class="filter-btn" onclick="setFilter('EMERGING')">🔵 Emerging</button>
-      <button class="filter-btn" onclick="setFilter('CAMPUS')">🏫 Campus / Transit</button>
+  <!-- Operational Filters & Search Bar (Slide 8 Phase 3) -->
+  <div class="controls-strip">
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="setFilter('ALL')">ALL PATTERNS</button>
+      <button class="filter-btn" onclick="setFilter('ESCALATING')">🔴 ESCALATING</button>
+      <button class="filter-btn" onclick="setFilter('CONCERNING')">🟡 CONCERNING</button>
+      <button class="filter-btn" onclick="setFilter('EMERGING')">🔵 EMERGING</button>
+      <button class="filter-btn" onclick="setFilter('CAMPUS')">🏫 CAMPUS / TRANSIT</button>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="Search patterns, locations, or threats..." oninput="filterPatterns()">
+    <input type="text" id="searchInput" class="search-box" placeholder="Filter by landmark, MO, or incident tag..." oninput="filterPatterns()">
   </div>
 
-  <div class="main-grid">
-    <!-- Spatial Intelligence Map & Escalation Timeline -->
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="font-size: 18px; font-weight: 800;">🗺️ Spatial DBSCAN Risk Clusters</h3>
-        <span style="font-size: 12px; color: var(--accent-green);">● REAL-TIME GIS SYNC</span>
-      </div>
-      
+  <!-- Console Layout -->
+  <div class="console-layout">
+    <!-- Map & Velocity Timeline Scrubber -->
+    <div class="map-column">
       <div id="map"></div>
 
-      <!-- Slide 5 Step 6 & Slide 6 #5: Incident Timeline & Escalation Trend Chart -->
-      <div class="timeline-container">
-        <div class="timeline-header">
-          <span>📈 Incident Velocity & Escalation Trend (Last 4 Weeks)</span>
-          <span style="color: var(--accent-red); font-size: 11px;">Surge Acceleration Active</span>
+      <!-- Incident Velocity & Acceleration Curve (Slide 5 & 6) -->
+      <div class="chart-section">
+        <div class="chart-header">
+          <span class="chart-title">Incident Velocity & Escalation Trajectory (4-Week Window)</span>
+          <span style="font-family: var(--font-mono); font-size: 10px; color: var(--status-red);">ACCELERATION: HIGH</span>
         </div>
-        <div style="height: 160px; position: relative;">
+        <div style="height: 140px; position: relative;">
           <canvas id="trendChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- Explainable Patterns Feed -->
-    <div class="card">
-      <div class="patterns-header">
-        <h3 style="font-size: 18px; font-weight: 800;">Emerging Safety Patterns</h3>
-        <span style="font-size: 12px; color: var(--text-muted);" id="patternCount">0 detected</span>
+    <!-- Live Emerging Patterns Column -->
+    <div class="patterns-column">
+      <div class="patterns-column-header">
+        <span style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--text-muted);">Correlated Threats</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-main);" id="patternCounter">0 CLUSTERS</span>
       </div>
+
       <div class="patterns-list" id="patternsContainer">
-        <div style="text-align: center; color: var(--text-muted); padding: 48px;">Analyzing active clusters...</div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: center; padding: 48px;">
+          Ingesting and correlating active spatial clusters...
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Human-in-the-Loop Review Modal (Slide 4 Safeguard & Slide 5 Step 7) -->
   <div class="modal-backdrop" id="reviewModal">
-    <div class="modal-card">
-      <h3 id="modalPatternTitle">Review Pattern</h3>
-      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-        Formal decision recording. Actions are permanently committed to the security audit trail.
+    <div class="modal-sheet">
+      <h3 class="modal-title" id="modalTitle">Formal Review & Intervention</h3>
+      <p class="modal-desc">
+        Human authority decision committing tactical interventions to the immutable security audit log.
       </p>
 
-      <div class="modal-field">
-        <label>Authority Decision</label>
-        <select class="modal-select" id="reviewDecision">
-          <option value="PATROL_DISPATCHED">Dispatch Tactical Patrol Unit</option>
-          <option value="CONFIRMED_THREAT">Confirm Threat & Issue Public Warning</option>
-          <option value="MONITORING">Keep Under Active AI Surveillance</option>
-          <option value="FALSE_POSITIVE">Dismiss as Isolated / False Alarm</option>
+      <div class="modal-group">
+        <label class="modal-label">Authority Directive</label>
+        <select class="modal-input" id="reviewDecision">
+          <option value="PATROL_DISPATCHED">Dispatch Tactical Patrol Unit to Coordinates</option>
+          <option value="CONFIRMED_THREAT">Confirm Threat & Issue Municipal Safety Advisory</option>
+          <option value="MONITORING">Maintain Real-Time AI Camera Surveillance</option>
+          <option value="FALSE_POSITIVE">Dismiss as Isolated / False Anomaly</option>
         </select>
       </div>
 
-      <div class="modal-field">
-        <label>Operational Directives & Notes</label>
-        <textarea class="modal-textarea" id="reviewNotes" rows="3" placeholder="Specify patrol frequency, lighting inspection orders, or investigative notes..."></textarea>
+      <div class="modal-group">
+        <label class="modal-label">Operational Notes & Sector Orders</label>
+        <textarea class="modal-input" id="reviewNotes" rows="3" placeholder="Specify patrol frequency, lighting inspection directives, or tactical notes..."></textarea>
       </div>
 
       <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-        <button class="btn-confirm" onclick="submitReviewAction()">Commit Authority Decision</button>
+        <button class="btn-modal-cancel" onclick="closeModal()">CANCEL</button>
+        <button class="btn-modal-submit" onclick="submitReviewAction()">COMMIT DIRECTIVE</button>
       </div>
     </div>
   </div>
@@ -568,14 +626,15 @@
     let map;
     let markersLayer = L.layerGroup();
     let circlesLayer = L.layerGroup();
-    let currentPatternId = null;
     let allPatterns = [];
+    let currentPatternId = null;
     let activeFilter = 'ALL';
-    let trendChartInstance = null;
 
     function initMap() {
-      map = L.map('map').setView([12.9716, 77.5946], 12);
-      
+      map = L.map('map', { zoomControl: false }).setView([12.9716, 77.5946], 12);
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      // Clean dark CartoDB tiles
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CartoDB &bull; ASTRA GIS',
         maxZoom: 19
@@ -587,28 +646,30 @@
 
     function initTrendChart() {
       const ctx = document.getElementById('trendChart').getContext('2d');
-      trendChartInstance = new Chart(ctx, {
+      new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4 (Current)'],
+          labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4 (Current)'],
           datasets: [
             {
-              label: 'Cluster 1: Brigade North Alley',
+              label: 'Brigade Road North Alley (Escalating)',
               data: [1, 2, 4, 7],
-              borderColor: '#ff3366',
-              backgroundColor: 'rgba(255, 51, 102, 0.1)',
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              borderWidth: 2,
+              pointBackgroundColor: '#ef4444',
+              tension: 0.35,
+              fill: true
             },
             {
-              label: 'Cluster 2: Transit Hub',
+              label: 'Koramangala Transit Hub (Concerning)',
               data: [1, 1, 2, 3],
-              borderColor: '#ffb800',
-              backgroundColor: 'rgba(255, 184, 0, 0.05)',
-              tension: 0.4,
-              fill: true,
-              borderWidth: 2
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.04)',
+              borderWidth: 2,
+              pointBackgroundColor: '#f59e0b',
+              tension: 0.35,
+              fill: true
             }
           ]
         },
@@ -617,17 +678,20 @@
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              labels: { color: '#94a3b8', font: { size: 10 } }
+              labels: {
+                color: '#94a3b8',
+                font: { family: "'JetBrains Mono', monospace", size: 10 }
+              }
             }
           },
           scales: {
             x: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8', font: { size: 10 } }
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#64748b', font: { family: "'JetBrains Mono', monospace", size: 9 } }
             },
             y: {
-              grid: { color: 'rgba(255, 255, 255, 0.05)' },
-              ticks: { color: '#94a3b8', font: { size: 10 }, stepSize: 2 }
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#64748b', font: { family: "'JetBrains Mono', monospace", size: 9 }, stepSize: 2 }
             }
           }
         }
@@ -648,7 +712,7 @@
           filterPatterns();
         }
       } catch (err) {
-        console.error('Data load error', err);
+        console.error('Data sync err', err);
       }
     }
 
@@ -656,77 +720,80 @@
       markersLayer.clearLayers();
       circlesLayer.clearLayers();
 
-      // Render incident points
+      // Render individual incidents with crisp tactical markers
       incidents.forEach(inc => {
         const marker = L.circleMarker([inc.latitude, inc.longitude], {
-          radius: 6,
+          radius: 4,
           color: '#ffffff',
           weight: 1,
-          fillColor: inc.source === 'cctv_ai' ? '#00f2fe' : '#ff0080',
-          fillOpacity: 0.85
+          fillColor: inc.source === 'cctv_ai' ? '#38bdf8' : '#f43f5e',
+          fillOpacity: 0.9
         });
         marker.bindPopup(`
-          <strong>${inc.incident_type}</strong><br>
-          Severity: ${inc.severity}/5<br>
-          Source: ${inc.source} (${inc.reporter_type})<br>
-          ${inc.description || ''}
+          <div style="font-family:'Inter',sans-serif; font-size:12px; line-height:1.4;">
+            <strong>${inc.incident_type.toUpperCase()}</strong><br>
+            Severity: ${inc.severity}/5 &bull; Source: ${inc.source} (${inc.reporter_type})<br>
+            <span style="color:#64748b;">${inc.description || 'No description logged.'}</span>
+          </div>
         `);
         markersLayer.addLayer(marker);
       });
 
-      // Render pattern clusters
+      // Render DBSCAN cluster boundary bubbles
       patterns.forEach(p => {
         if (p.latitude && p.longitude) {
-          let color = '#00df89';
-          if (p.pattern_level === 'ESCALATING') color = '#ff3366';
-          else if (p.pattern_level === 'CONCERNING') color = '#ffb800';
-          else if (p.pattern_level === 'EMERGING') color = '#00f2fe';
+          let color = '#10b981';
+          if (p.pattern_level === 'ESCALATING') color = '#ef4444';
+          else if (p.pattern_level === 'CONCERNING') color = '#f59e0b';
+          else if (p.pattern_level === 'EMERGING') color = '#3b82f6';
 
           const circle = L.circle([p.latitude, p.longitude], {
             radius: p.radius_meters || 200,
             color: color,
             fillColor: color,
-            fillOpacity: 0.18,
-            weight: 2
+            fillOpacity: 0.12,
+            weight: 1.5,
+            dashArray: '4, 4'
           });
           circle.bindPopup(`
-            <strong>${p.title}</strong><br>
-            Level: ${p.pattern_level}<br>
-            Risk Score: ${p.risk_score.toFixed(1)}/100<br>
-            ${p.explanation}
+            <div style="font-family:'Inter',sans-serif; font-size:12px; line-height:1.4;">
+              <strong>${p.title}</strong><br>
+              Status: ${p.pattern_level} &bull; Risk Score: ${p.risk_score.toFixed(1)}/100<br>
+              ${p.explanation}
+            </div>
           `);
           circlesLayer.addLayer(circle);
         }
       });
     }
 
-    function setFilter(filterType) {
-      activeFilter = filterType;
+    function setFilter(filter) {
+      activeFilter = filter;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       event.target.classList.add('active');
       filterPatterns();
     }
 
     function filterPatterns() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      let filtered = allPatterns.filter(p => {
-        const matchLevel = (activeFilter === 'ALL') || 
-                           (activeFilter === 'CAMPUS' ? (p.title?.toLowerCase().includes('transit') || p.title?.toLowerCase().includes('campus')) : p.pattern_level === activeFilter);
-        const matchQuery = !query || 
-                           (p.title && p.title.toLowerCase().includes(query)) || 
-                           (p.explanation && p.explanation.toLowerCase().includes(query));
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allPatterns.filter(p => {
+        const matchLevel = (activeFilter === 'ALL') ||
+          (activeFilter === 'CAMPUS' ? (p.title?.toLowerCase().includes('transit') || p.title?.toLowerCase().includes('campus')) : p.pattern_level === activeFilter);
+        const matchQuery = !q ||
+          (p.title && p.title.toLowerCase().includes(q)) ||
+          (p.explanation && p.explanation.toLowerCase().includes(q));
         return matchLevel && matchQuery;
       });
 
-      renderPatterns(filtered);
+      renderPatternsList(filtered);
     }
 
-    function renderPatterns(patterns) {
+    function renderPatternsList(patterns) {
       const container = document.getElementById('patternsContainer');
-      document.getElementById('patternCount').innerText = `${patterns.length} displayed`;
+      document.getElementById('patternCounter').innerText = `${patterns.length} ACTIVE`;
 
       if (patterns.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 48px;">No matching patterns for current filter.</div>`;
+        container.innerHTML = `<div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-align:center; padding:48px;">No matching patterns.</div>`;
         return;
       }
 
@@ -736,48 +803,51 @@
         const tempVal = ev.temporal?.temporal_score || 0;
         const freqVal = ev.frequency?.frequency_score || 0;
         const trendVal = ev.trend?.trend_score || 0;
-        const divVal = ev.diversity?.diversity_score || 0;
 
         return `
-          <div class="pattern-card">
-            <div class="pattern-top">
-              <span class="pattern-level-badge badge-${p.pattern_level}">${p.pattern_level}</span>
-              <div class="risk-score-display" style="color: ${p.pattern_level === 'ESCALATING' ? 'var(--accent-red)' : p.pattern_level === 'CONCERNING' ? 'var(--accent-yellow)' : 'var(--accent-cyan)'};">
-                ${p.risk_score.toFixed(1)} <span style="font-size:12px; color:var(--text-muted);">/ 100</span>
+          <div class="pattern-card" onclick="focusCluster(${p.latitude}, ${p.longitude})">
+            <div class="pattern-top-bar">
+              <span class="level-badge level-${p.pattern_level}">${p.pattern_level}</span>
+              <span class="risk-num">${p.risk_score.toFixed(1)} <span style="font-size:10px; color:var(--text-muted);">RISK</span></span>
+            </div>
+
+            <div class="pattern-heading">${p.title || 'Cluster Profile'}</div>
+            <div class="pattern-narrative">${p.explanation}</div>
+
+            <div class="signals-grid">
+              <div class="signal-item">
+                Spatial Density: <span>${spatialVal.toFixed(0)}%</span>
+                <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${spatialVal}%;"></div></div>
+              </div>
+              <div class="signal-item">
+                Time Window: <span>${tempVal.toFixed(0)}%</span>
+                <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${tempVal}%;"></div></div>
+              </div>
+              <div class="signal-item">
+                Surge Velocity: <span>${freqVal.toFixed(0)}%</span>
+                <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${freqVal}%;"></div></div>
+              </div>
+              <div class="signal-item">
+                Trend Trajectory: <span>${trendVal.toFixed(0)}%</span>
+                <div class="signal-bar-track"><div class="signal-bar-fill" style="width:${trendVal}%;"></div></div>
               </div>
             </div>
 
-            <div class="pattern-title">${p.title || 'Safety Cluster'}</div>
-            <div class="pattern-explanation">${p.explanation}</div>
-
-            <div class="bars-grid">
-              <div class="bar-item">
-                Spatial Density: ${spatialVal.toFixed(0)}%
-                <div class="bar-track"><div class="bar-fill" style="width: ${spatialVal}%; background: var(--accent-cyan);"></div></div>
-              </div>
-              <div class="bar-item">
-                Time Window: ${tempVal.toFixed(0)}%
-                <div class="bar-track"><div class="bar-fill" style="width: ${tempVal}%; background: var(--accent-purple);"></div></div>
-              </div>
-              <div class="bar-item">
-                Surge Frequency: ${freqVal.toFixed(0)}%
-                <div class="bar-track"><div class="bar-fill" style="width: ${freqVal}%; background: var(--accent-yellow);"></div></div>
-              </div>
-              <div class="bar-item">
-                Escalation Trend: ${trendVal.toFixed(0)}%
-                <div class="bar-track"><div class="bar-fill" style="width: ${trendVal}%; background: var(--accent-red);"></div></div>
-              </div>
-            </div>
-
-            <button class="btn-review" onclick="openModal('${p.id}', '${p.title}')">
-              ✍️ Authority Review & Dispatch Decision
+            <button class="btn-review-trigger" onclick="event.stopPropagation(); openReviewModal('${p.id}', '${p.title}')">
+              <span>✍️ COMMIT AUTHORITY DIRECTIVE</span>
             </button>
           </div>
         `;
       }).join('');
     }
 
-    async function refreshEngine() {
+    function focusCluster(lat, lon) {
+      if (lat && lon) {
+        map.flyTo([lat, lon], 15, { duration: 1.2 });
+      }
+    }
+
+    async function triggerRefresh() {
       try {
         await fetch('/api/patterns/refresh', { method: 'POST' });
         loadData();
@@ -786,9 +856,9 @@
       }
     }
 
-    function openModal(patternId, title) {
-      currentPatternId = patternId;
-      document.getElementById('modalPatternTitle').innerText = `Review: ${title}`;
+    function openReviewModal(id, title) {
+      currentPatternId = id;
+      document.getElementById('modalTitle').innerText = `Directive: ${title}`;
       document.getElementById('reviewModal').style.display = 'flex';
     }
 
@@ -812,11 +882,11 @@
             action_taken: decision
           })
         });
-        alert("Authority review and action committed to system audit log!");
+        alert("Authority directive successfully registered into security audit trail.");
         closeModal();
         loadData();
       } catch (e) {
-        alert("Review submission notice: " + e.message);
+        alert("Review registration notice: " + e.message);
       }
     }
 
