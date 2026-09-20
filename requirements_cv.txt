@@ -1,0 +1,9 @@
+flask>=3.0.0
+flask-socketio>=5.3.0
+opencv-python>=4.9.0
+tensorflow>=2.15.0
+tf_keras>=2.15.0
+keras>=3.0.0
+ultralytics>=8.0.0
+twilio>=8.0.0
+requests>=2.31.0

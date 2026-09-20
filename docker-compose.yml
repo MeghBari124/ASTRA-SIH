@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./astra.db
+      - SECRET_KEY=astra-production-secret-key
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  cv_stream:
+    build:
+      context: .
+      dockerfile: Dockerfile.cv
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    restart: unless-stopped

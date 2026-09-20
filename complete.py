@@ -1,23 +1,59 @@
 from flask import Flask, render_template, Response, jsonify
 from flask_socketio import SocketIO
 import time
+import os
 import cv2
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.models import load_model
-from keras.layers import DepthwiseConv2D
+
+# ── Dual-backend model loading ────────────────────────────────────────────────
+# gender_model_best.h5 / emotion_model.h5 → saved with Keras 3 → use `keras`
+# violence.h5                             → saved with Keras 2 → use `tf_keras`
+import keras
+from keras.models import load_model as k3_load_model
+
+import tf_keras
+from tf_keras.models import load_model as k2_load_model
+from tf_keras.layers import DepthwiseConv2D
+
+# Patch keras 3 InputLayer.from_config: old models store 'batch_shape' but
+# Keras 3 InputLayer expects 'shape' (without the batch dimension).
+_k3_orig_il_fc = keras.layers.InputLayer.from_config
+@classmethod
+def _k3_patched_il_fc(cls, config):
+    config = dict(config)
+    if 'batch_shape' in config:
+        batch_shape = config.pop('batch_shape')
+        config['shape'] = batch_shape[1:]   # drop the batch dim
+    return _k3_orig_il_fc.__func__(cls, config)
+keras.layers.InputLayer.from_config = _k3_patched_il_fc
+
+# Simple img_to_array replacement (avoid importing from deprecated keras path)
+def img_to_array(img):
+    """Convert an image/array to a float32 numpy array with channel-last."""
+    x = np.asarray(img, dtype='float32')
+    if x.ndim == 2:
+        x = np.expand_dims(x, axis=-1)
+    return x
+# ─────────────────────────────────────────────────────────────────────────────
 from ultralytics import YOLO
-from twilio.rest import Client
 import base64
 import threading
 # Import show.py methods
 from show import run_show
 
-# Twilio credentials
-# account_sid = give account_id
-# auth_token = give auth token
-client = Client(account_sid, auth_token)
+# Twilio credentials (optional - set these to enable SOS alerts)
+TWILIO_ENABLED = False
+try:
+    from twilio.rest import Client
+    account_sid = None  # Replace with your Twilio account SID
+    auth_token = None   # Replace with your Twilio auth token
+    if account_sid and auth_token:
+        client = Client(account_sid, auth_token)
+        TWILIO_ENABLED = True
+except Exception as e:
+    print(f"[WARNING] Twilio not configured, SOS alerts disabled: {e}")
+    client = None
 
 # Flask and SocketIO setup
 app = Flask(__name__)
@@ -25,6 +61,9 @@ socketio = SocketIO(app)
 
 # Twilio SOS functions
 def send_sos_alert(authority_number, message):
+    if not TWILIO_ENABLED:
+        print(f"[SOS ALERT - Twilio disabled] Would send to {authority_number}: {message}")
+        return
     client.messages.create(
         body=message,
         # Twilio number from = give twilio number
@@ -33,6 +72,9 @@ def send_sos_alert(authority_number, message):
     print(f"SMS sent to {authority_number}")
 
 def make_sos_call(authority_number, twiml_url):
+    if not TWILIO_ENABLED:
+        print(f"[SOS CALL - Twilio disabled] Would call {authority_number}")
+        return
     call = client.calls.create(
         to=authority_number,
         # Twilio number from = give twilio number
@@ -52,18 +94,27 @@ def start_sos_sequence(authority_number, message, twiml_url):
         if alert_count < max_alerts:
             time.sleep(30)
 
-# Load model with custom objects
+# Custom DepthwiseConv2D for violence.h5 (old Keras 2 model uses 'groups' kwarg
+# that tf_keras 2.20 does not accept; strip it before calling super())
 class CustomDepthwiseConv2D(DepthwiseConv2D):
     def __init__(self, *args, **kwargs):
-        if 'groups' in kwargs:
-            kwargs.pop('groups')
-        super(CustomDepthwiseConv2D, self).__init__(*args, **kwargs)
+        kwargs.pop('groups', None)
+        super().__init__(*args, **kwargs)
 
-# Load models for gender, emotion, and violence detection
-gender_model = load_model('gender_model_best.h5')
-emotion_model = load_model('emotion_model.h5')
-violence_model = load_model("violence.h5", custom_objects={'DepthwiseConv2D': CustomDepthwiseConv2D}, compile=False)
+# Load models using the appropriate Keras backend
+print("[INFO] Loading gender model (Keras 3)...")
+gender_model  = k3_load_model('gender_model_best.h5', compile=False)
+print("[INFO] Loading emotion model (Keras 3)...")
+emotion_model = k3_load_model('emotion_model.h5',     compile=False)
+print("[INFO] Loading violence model (tf_keras / Keras 2)...")
+violence_model = k2_load_model(
+    'violence.h5',
+    custom_objects={'DepthwiseConv2D': CustomDepthwiseConv2D},
+    compile=False
+)
+print("[INFO] Loading YOLOv8 pose model...")
 pose_model = YOLO("yolov8n-pose.pt")
+print("[INFO] All models loaded successfully!")
 
 # Define labels and confidence threshold for gender detection
 gender_labels = ['Male', 'Female']
