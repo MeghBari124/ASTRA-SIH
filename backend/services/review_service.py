@@ -1,4 +1,4 @@
-"""Human-in-the-loop review workflow service."""
+"""Human-in-the-loop review workflow service with hash-chained audit logging."""
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from backend.models.review import PatternReview
@@ -28,14 +28,19 @@ def create_review(db: Session, rev_in: ReviewCreate, reviewer_id: Optional[str] 
         elif rev_in.decision == "MONITORING":
             pattern.status = "UNDER_REVIEW"
 
-    # Add audit log entry
+    # Cryptographic hash-chaining: link to previous audit entry
+    last_log = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).first()
+    prev_hash = last_log.entry_hash if (last_log and last_log.entry_hash) else "GENESIS_ROOT_HASH_CX1001"
+
     audit = AuditLog(
         user_id=reviewer_id,
         action=f"REVIEW_SUBMITTED: {rev_in.decision}",
         resource_type="pattern",
         resource_id=rev_in.pattern_id,
+        previous_hash=prev_hash,
         metadata_json={"decision": rev_in.decision, "action_taken": rev_in.action_taken}
     )
+    audit.entry_hash = audit.compute_hash(prev_hash)
     db.add(audit)
 
     db.commit()

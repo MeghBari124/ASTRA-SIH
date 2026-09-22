@@ -44,7 +44,9 @@ def create_incident(db: Session, inc_in: IncidentCreate, reporter_id: Optional[s
         for i in recent_active
     ]
     dupes = detect_duplicates(inc_dicts)
-    for id1, id2 in dupes:
+    for pair in dupes:
+        id1 = pair["incident_id_1"] if isinstance(pair, dict) else pair[0]
+        id2 = pair["incident_id_2"] if isinstance(pair, dict) else pair[1]
         if new_inc.id in (id1, id2):
             new_inc.duplicate_candidate = True
             db.commit()

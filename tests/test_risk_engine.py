@@ -3,7 +3,7 @@ from backend.analytics.risk_engine import calculate_cluster_risk
 
 def test_risk_engine_escalating_pattern():
     now = datetime.now(timezone.utc)
-    # High threat incidents concentrated in time and space with diverse reporters
+    # High threat incidents concentrated in time and space with diverse reporters and MO matching
     incidents = [
         {
             "id": "1",
@@ -44,4 +44,8 @@ def test_risk_engine_escalating_pattern():
     assert analysis["risk_score"] > 50.0
     assert analysis["pattern_level"] in ("CONCERNING", "ESCALATING")
     assert "explanation" in analysis
-    assert analysis["reporter_diversity"] == 3
+    # Differentiates human witnesses from automated CCTV signals:
+    assert analysis["reporter_diversity"] == 2  # 2 independent human witnesses
+    assert analysis["evidence"]["diversity"]["unique_system_sources"] == 1  # 1 automated CCTV signal
+    assert "behaviour_score" in analysis
+    assert analysis["behaviour_score"] > 0.0
