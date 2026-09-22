@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Shield,
+  Layers,
   Radio,
   Flame,
   TrendingUp,
@@ -12,12 +13,8 @@ import {
   FileCheck,
   CheckCircle2,
   Filter,
-  Layers,
   MapPin,
   Clock,
-  Sparkles,
-  ExternalLink,
-  ChevronRight,
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
@@ -110,7 +107,7 @@ export const AuthorityDashboard: React.FC = () => {
       setIncidents(incidentsData);
       setSummary(summaryData);
       setFeedbackMessage("DBSCAN clusters & 6-Pillar Risk Scores successfully recomputed from active signals.");
-      setTimeout(() => setFeedbackMessage(null), 5000);
+      setTimeout(() => setFeedbackMessage(null), 4000);
     } catch (err: any) {
       setFeedbackMessage(`Refresh failed: ${err.message}`);
     } finally {
@@ -125,11 +122,10 @@ export const AuthorityDashboard: React.FC = () => {
       await api.createReview({
         pattern_id: selectedPattern.id,
         action: actionType,
-        notes: officerNotes || `Officer selected ${actionType} based on 6-pillar risk evidence.`,
+        notes: officerNotes || `Officer logged ${actionType} based on 6-pillar risk evidence.`,
         reviewed_by: officerName,
       });
 
-      // Reload reviews & pattern list
       await loadPatternReviews(selectedPattern.id);
       const updated = await api.getPatterns();
       setPatterns(updated);
@@ -138,8 +134,8 @@ export const AuthorityDashboard: React.FC = () => {
 
       setReviewDialogOpen(false);
       setOfficerNotes("");
-      setFeedbackMessage(`Authority Action '${actionType}' logged to immutable audit ledger.`);
-      setTimeout(() => setFeedbackMessage(null), 5000);
+      setFeedbackMessage(`Action '${actionType}' logged to official audit trail.`);
+      setTimeout(() => setFeedbackMessage(null), 4000);
     } catch (err: any) {
       alert(`Action error: ${err.message}`);
     } finally {
@@ -148,36 +144,36 @@ export const AuthorityDashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="space-y-6">
       {/* Top Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-white/10 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="critical">AUTHORITY COMMAND DESK</Badge>
-            <span className="text-xs font-mono text-slate-400">Bangalore Metropolitan Safety Grid</span>
+            <Badge variant="destructive">AUTHORITY COMMAND DESK</Badge>
+            <span className="text-xs text-slate-500">Bangalore Metropolitan Safety Grid</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-3">
-            ASTRA Multi-Signal Intelligence Center
+          <h1 className="text-xl font-bold text-slate-900">
+            Safety Intelligence & Hotspot Management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs text-slate-500 mt-0.5">
             DBSCAN spatial clustering • Modus Operandi correlation • Explainable 6-Pillar Risk Engine
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Button
             variant="outline"
             size="sm"
             onClick={handleManualRefresh}
             disabled={refreshing}
-            className="text-xs font-mono border-blue-500/30 text-blue-300 hover:bg-blue-950/50"
+            className="text-xs"
           >
             <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${refreshing ? "animate-spin" : ""}`} />
             {refreshing ? "Re-Clustering..." : "Recalculate Clusters"}
           </Button>
 
           <Button
-            variant="emergency"
+            variant="default"
             size="sm"
             onClick={() => {
               if (selectedPattern) {
@@ -186,7 +182,7 @@ export const AuthorityDashboard: React.FC = () => {
               }
             }}
             disabled={!selectedPattern}
-            className="text-xs font-mono"
+            className="text-xs"
           >
             <Send className="h-3.5 w-3.5 mr-1.5" />
             Dispatch Patrol
@@ -195,73 +191,64 @@ export const AuthorityDashboard: React.FC = () => {
       </div>
 
       {feedbackMessage && (
-        <Alert variant="info" className="border-blue-500/50 bg-blue-950/40">
-          <Sparkles className="h-4 w-4 text-blue-400" />
-          <AlertTitle>System Update</AlertTitle>
+        <Alert variant="info">
+          <AlertTitle>Operation Logged</AlertTitle>
           <AlertDescription>{feedbackMessage}</AlertDescription>
         </Alert>
       )}
 
       {/* KPI Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-white/10 bg-slate-900/60">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-mono text-slate-400 uppercase">Active Hotspot Clusters</div>
-              <div className="text-2xl font-black text-white mt-1 font-mono">
-                {summary?.active_patterns ?? patterns.length}
-              </div>
-              <div className="text-[10px] text-blue-400 mt-0.5">DBSCAN Epsilon 150m</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="p-4 flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Active Hotspot Clusters</div>
+            <div className="text-2xl font-bold text-slate-900 font-mono mt-1">
+              {summary?.active_patterns ?? patterns.length}
             </div>
-            <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-400">
-              <Layers className="h-5 w-5" />
-            </div>
-          </CardContent>
+            <div className="text-[11px] text-blue-600 mt-0.5 font-medium">DBSCAN Epsilon 150m</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
+            <Layers className="h-5 w-5" />
+          </div>
         </Card>
 
-        <Card className="border-white/10 bg-slate-900/60">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-mono text-slate-400 uppercase">Critical Threat Zones</div>
-              <div className="text-2xl font-black text-rose-400 mt-1 font-mono">
-                {summary?.critical_patterns ?? patterns.filter((p) => p.pattern_level === "CRITICAL" || p.pattern_level === "ESCALATING").length}
-              </div>
-              <div className="text-[10px] text-rose-400 mt-0.5">Immediate Response Recommended</div>
+        <Card className="p-4 flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Critical Threat Zones</div>
+            <div className="text-2xl font-bold text-red-600 font-mono mt-1">
+              {summary?.critical_patterns ?? patterns.filter((p) => p.pattern_level === "CRITICAL" || p.pattern_level === "ESCALATING").length}
             </div>
-            <div className="p-2.5 rounded-lg bg-rose-500/10 text-rose-400">
-              <ShieldAlert className="h-5 w-5 animate-pulse" />
-            </div>
-          </CardContent>
+            <div className="text-[11px] text-red-600 mt-0.5 font-medium">Immediate Response Recommended</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-red-50 text-red-600 border border-red-100">
+            <ShieldAlert className="h-5 w-5" />
+          </div>
         </Card>
 
-        <Card className="border-white/10 bg-slate-900/60">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-mono text-slate-400 uppercase">Total Ingested Signals</div>
-              <div className="text-2xl font-black text-slate-200 mt-1 font-mono">
-                {incidents.length}
-              </div>
-              <div className="text-[10px] text-emerald-400 mt-0.5">Citizen + CCTV + Patrols</div>
+        <Card className="p-4 flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Total Ingested Signals</div>
+            <div className="text-2xl font-bold text-slate-900 font-mono mt-1">
+              {incidents.length}
             </div>
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-              <Radio className="h-5 w-5" />
-            </div>
-          </CardContent>
+            <div className="text-[11px] text-emerald-600 mt-0.5 font-medium">Citizen + CCTV + Patrols</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <Radio className="h-5 w-5" />
+          </div>
         </Card>
 
-        <Card className="border-white/10 bg-slate-900/60">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <div className="text-[11px] font-mono text-slate-400 uppercase">Anti-Gaming / Sybil Defense</div>
-              <div className="text-2xl font-black text-amber-300 mt-1 font-mono">
-                100%
-              </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Independent Reporter Gating Active</div>
+        <Card className="p-4 flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Anti-Gaming / Sybil Defense</div>
+            <div className="text-2xl font-bold text-slate-900 font-mono mt-1">
+              Active
             </div>
-            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-400">
-              <Shield className="h-5 w-5" />
-            </div>
-          </CardContent>
+            <div className="text-[11px] text-slate-500 mt-0.5">Reporter diversity gating verified</div>
+          </div>
+          <div className="p-2.5 rounded-lg bg-slate-50 text-slate-700 border border-slate-200">
+            <Shield className="h-5 w-5" />
+          </div>
         </Card>
       </div>
 
@@ -271,24 +258,24 @@ export const AuthorityDashboard: React.FC = () => {
           <TabsTrigger value="overview">Live Command & Map</TabsTrigger>
           <TabsTrigger value="patterns">Hotspot Patterns ({patterns.length})</TabsTrigger>
           <TabsTrigger value="incidents">All Raw Signals ({incidents.length})</TabsTrigger>
-          <TabsTrigger value="audit">Tamper-Proof Audit Log ({reviews.length})</TabsTrigger>
+          <TabsTrigger value="audit">Action Audit Log ({reviews.length})</TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Overview (Dual Column: List + Map + Detail Panel) */}
+        {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left 4 cols: Pattern List */}
             <div className="lg:col-span-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-400 font-semibold uppercase">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Identified Hotspot Clusters
                 </span>
-                <span className="text-[11px] font-mono text-blue-400">Sorted by Risk</span>
+                <span className="text-[11px] text-slate-500">Sorted by Risk</span>
               </div>
 
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+              <div className="space-y-2.5 max-h-[620px] overflow-y-auto pr-1">
                 {patterns.length === 0 ? (
-                  <div className="p-8 text-center text-slate-500 text-xs font-mono border border-dashed border-white/10 rounded-xl">
+                  <div className="p-8 text-center text-slate-500 text-xs border border-dashed border-slate-200 rounded-lg">
                     No active patterns detected. Ingest incidents or click 'Recalculate Clusters'.
                   </div>
                 ) : (
@@ -307,23 +294,23 @@ export const AuthorityDashboard: React.FC = () => {
             {/* Right 8 cols: Interactive Map + Selected Pattern Deep Dive */}
             <div className="lg:col-span-8 space-y-6">
               {/* Map Card */}
-              <Card className="border-white/15 bg-slate-950/80">
-                <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+              <Card>
+                <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle className="text-sm font-semibold text-white">
+                    <CardTitle className="text-sm font-semibold text-slate-900">
                       Spatial Hotspot Map
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      Visualizing DBSCAN cluster radii and individual verified signal origins.
+                      Visualizing cluster radii and individual signal origins.
                     </CardDescription>
                   </div>
                   {selectedPattern && (
-                    <Badge variant="watch" className="font-mono text-[10px]">
-                      Viewing Cluster #{selectedPattern.cluster_id ?? "0"}
+                    <Badge variant="secondary" className="font-mono text-[10px]">
+                      Selected: Cluster #{selectedPattern.cluster_id ?? "0"}
                     </Badge>
                   )}
                 </CardHeader>
-                <CardContent className="p-4 pt-2 h-[340px]">
+                <CardContent className="p-0 h-[320px] relative">
                   <IncidentMap
                     patterns={patterns}
                     incidents={incidents}
@@ -335,32 +322,31 @@ export const AuthorityDashboard: React.FC = () => {
 
               {/* Selected Pattern Deep Dive */}
               {selectedPattern && (
-                <Card className="border-blue-500/30 bg-slate-900/80 shadow-2xl">
-                  <CardHeader className="p-5 border-b border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <Card>
+                  <CardHeader className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant={selectedPattern.pattern_level === "CRITICAL" ? "critical" : selectedPattern.pattern_level === "ESCALATING" ? "escalating" : "concerning"}>
                           {selectedPattern.pattern_level} THREAT
                         </Badge>
-                        <span className="text-xs font-mono text-slate-400">
-                          ID: {selectedPattern.id.slice(0, 12)}...
+                        <span className="text-xs font-mono text-slate-500">
+                          ID: {selectedPattern.id.slice(0, 10)}...
                         </span>
-                        <span className="text-xs font-mono text-emerald-400">
+                        <span className="text-xs text-slate-600 font-medium">
                           Status: {selectedPattern.status}
                         </span>
                       </div>
-                      <CardTitle className="text-lg font-bold text-white">
+                      <CardTitle className="text-base font-bold text-slate-900">
                         {selectedPattern.title || `Cluster #${selectedPattern.cluster_id}`}
                       </CardTitle>
-                      <CardDescription className="text-xs mt-1 text-slate-300">
+                      <CardDescription className="text-xs mt-1 text-slate-600">
                         {selectedPattern.explanation || "Coordinated multi-signal pattern identified across independent sources."}
                       </CardDescription>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="cyber"
+                        variant="outline"
                         size="sm"
                         onClick={() => {
                           setActionType("MONITOR");
@@ -389,25 +375,25 @@ export const AuthorityDashboard: React.FC = () => {
                     <PillarBreakdown pattern={selectedPattern} />
 
                     {/* Modus Operandi & Anti-Gaming Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/5">
-                      <div className="p-3.5 rounded-lg bg-slate-950/60 border border-white/5 space-y-2">
-                        <div className="flex items-center gap-2 text-xs font-mono font-semibold text-rose-300">
-                          <Flame className="h-4 w-4 text-rose-400" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                      <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+                          <Flame className="h-4 w-4 text-red-600" />
                           Modus Operandi & Behavior Correlation
                         </div>
-                        <p className="text-xs text-slate-300 leading-relaxed">
+                        <p className="text-xs text-slate-600 leading-relaxed">
                           {selectedPattern.evidence?.behaviour_similarity?.explanation ||
-                            "Repeated behavior similarity detected in victim-stalking reports and loitering clusters within the 150m perimeter."}
+                            "Repeated behavior similarity detected in victim-stalking reports and loitering clusters within the immediate perimeter."}
                         </p>
                       </div>
 
-                      <div className="p-3.5 rounded-lg bg-slate-950/60 border border-white/5 space-y-2">
-                        <div className="flex items-center gap-2 text-xs font-mono font-semibold text-emerald-300">
-                          <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                      <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
+                          <ShieldCheck className="h-4 w-4 text-emerald-600" />
                           Anti-Gaming Multi-Source Confirmation
                         </div>
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          Validated by <b>{selectedPattern.reporter_diversity} distinct independent reporters</b> across citizen submissions and CCTV telemetry, preventing false spam sybil manipulation.
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          Validated by <strong>{selectedPattern.reporter_diversity} distinct independent reporters</strong> across citizen submissions and CCTV telemetry, preventing false spam sybil manipulation.
                         </p>
                       </div>
                     </div>
@@ -420,14 +406,12 @@ export const AuthorityDashboard: React.FC = () => {
 
         {/* Tab 2: All Patterns List */}
         <TabsContent value="patterns">
-          <Card className="border-white/15 bg-slate-950/80">
-            <CardHeader className="p-4 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-sm font-semibold text-white">All Pattern Hotspots</CardTitle>
-                <CardDescription className="text-xs">
-                  Active clusters computed by ASTRA's DBSCAN and multi-factor risk engine.
-                </CardDescription>
-              </div>
+          <Card>
+            <CardHeader className="p-4 border-b border-slate-100">
+              <CardTitle className="text-sm font-semibold text-slate-900">All Pattern Hotspots</CardTitle>
+              <CardDescription className="text-xs">
+                Active clusters computed by ASTRA's DBSCAN and multi-factor risk engine.
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
@@ -445,7 +429,7 @@ export const AuthorityDashboard: React.FC = () => {
                 <TableBody>
                   {patterns.map((pat) => (
                     <TableRow key={pat.id}>
-                      <TableCell className="font-semibold text-white">
+                      <TableCell className="font-semibold text-slate-900">
                         {pat.title || `Cluster #${pat.cluster_id}`}
                       </TableCell>
                       <TableCell>
@@ -463,19 +447,19 @@ export const AuthorityDashboard: React.FC = () => {
                           {pat.pattern_level}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono font-bold text-amber-400">
+                      <TableCell className="font-mono font-bold text-amber-600">
                         {Math.round(pat.risk_score)} / 100
                       </TableCell>
                       <TableCell className="font-mono">{pat.incident_count} reports</TableCell>
-                      <TableCell className="font-mono text-emerald-400">
+                      <TableCell className="font-mono text-emerald-700">
                         {pat.reporter_diversity} distinct reporters
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-slate-400">
+                      <TableCell className="font-mono text-xs text-slate-500">
                         {pat.status}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
-                          variant="cyber"
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             setSelectedPattern(pat);
@@ -496,9 +480,9 @@ export const AuthorityDashboard: React.FC = () => {
 
         {/* Tab 3: Incidents Feed Table */}
         <TabsContent value="incidents">
-          <Card className="border-white/15 bg-slate-950/80">
-            <CardHeader className="p-4">
-              <CardTitle className="text-sm font-semibold text-white">All Raw Incident Telemetry</CardTitle>
+          <Card>
+            <CardHeader className="p-4 border-b border-slate-100">
+              <CardTitle className="text-sm font-semibold text-slate-900">All Raw Incident Telemetry</CardTitle>
               <CardDescription className="text-xs">
                 Complete ingestion stream from citizens, CCTV AI, and security patrols.
               </CardDescription>
@@ -519,10 +503,10 @@ export const AuthorityDashboard: React.FC = () => {
                 <TableBody>
                   {incidents.map((inc) => (
                     <TableRow key={inc.id}>
-                      <TableCell className="font-semibold capitalize text-white">
+                      <TableCell className="font-medium capitalize text-slate-900">
                         {inc.incident_type.replace('_', ' ')}
                       </TableCell>
-                      <TableCell className="text-slate-300 max-w-xs truncate">
+                      <TableCell className="text-slate-600 max-w-xs truncate text-xs">
                         {inc.description || "No description provided."}
                       </TableCell>
                       <TableCell>
@@ -531,14 +515,14 @@ export const AuthorityDashboard: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className={`font-mono font-bold ${inc.severity >= 4 ? 'text-red-400' : inc.severity >= 3 ? 'text-amber-400' : 'text-blue-400'}`}>
-                          {inc.severity} / 5
+                        <span className={`font-semibold text-xs ${inc.severity >= 4 ? 'text-red-600' : inc.severity >= 3 ? 'text-amber-600' : 'text-blue-600'}`}>
+                          Level {inc.severity} / 5
                         </span>
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-slate-400">
+                      <TableCell className="font-mono text-xs text-slate-500">
                         {inc.latitude.toFixed(4)}, {inc.longitude.toFixed(4)}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-blue-400">
+                      <TableCell className="font-mono text-xs text-blue-600 font-medium">
                         {inc.cluster_id !== null && inc.cluster_id !== undefined ? `#${inc.cluster_id}` : "-"}
                       </TableCell>
                       <TableCell className="text-right font-mono text-xs text-slate-500">
@@ -552,18 +536,18 @@ export const AuthorityDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Tab 4: Audit Timeline Ledger */}
+        {/* Tab 4: Audit Timeline */}
         <TabsContent value="audit">
-          <Card className="border-white/15 bg-slate-950/80">
-            <CardHeader className="p-5 border-b border-white/10">
+          <Card>
+            <CardHeader className="p-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <FileCheck className="h-5 w-5 text-emerald-400" />
-                <CardTitle className="text-base font-bold text-white">
-                  Tamper-Evident Authority Action Ledger
+                <FileCheck className="h-5 w-5 text-emerald-600" />
+                <CardTitle className="text-sm font-semibold text-slate-900">
+                  Authority Action Audit Trail
                 </CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Immutable audit trail of all officer interventions, patrol dispatches, and pattern resolutions.
+                Verified log of all officer interventions, patrol dispatches, and pattern resolutions.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
@@ -573,7 +557,7 @@ export const AuthorityDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Authority Action Review Dialog */}
+      {/* Action Review Dialog */}
       <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -585,15 +569,15 @@ export const AuthorityDashboard: React.FC = () => {
 
           <div className="space-y-4 py-2 text-xs">
             <div>
-              <label className="font-mono text-slate-300 block mb-1.5 font-semibold">
+              <label className="text-slate-700 block mb-1.5 font-semibold">
                 Action Protocol *
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: "DISPATCH", label: "Dispatch Patrol Unit", icon: Send, color: "text-red-400" },
-                  { id: "MONITOR", label: "Active Surveillance", icon: Eye, color: "text-blue-400" },
-                  { id: "ESCALATE", label: "Escalate to HQ", icon: AlertTriangle, color: "text-amber-400" },
-                  { id: "CLOSE", label: "Close Hotspot", icon: XCircle, color: "text-slate-400" },
+                  { id: "DISPATCH", label: "Dispatch Patrol Unit", icon: Send },
+                  { id: "MONITOR", label: "Active Surveillance", icon: Eye },
+                  { id: "ESCALATE", label: "Escalate to HQ", icon: AlertTriangle },
+                  { id: "CLOSE", label: "Close Hotspot", icon: XCircle },
                 ].map((act) => {
                   const Icon = act.icon;
                   return (
@@ -601,14 +585,14 @@ export const AuthorityDashboard: React.FC = () => {
                       key={act.id}
                       type="button"
                       onClick={() => setActionType(act.id as any)}
-                      className={`p-2.5 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer ${
+                      className={`p-2.5 rounded-md border text-left flex items-center gap-2 transition-colors cursor-pointer ${
                         actionType === act.id
-                          ? "border-blue-500 bg-blue-950/60 text-white shadow-sm"
-                          : "border-white/10 bg-slate-900/40 text-slate-400 hover:text-white"
+                          ? "border-blue-600 bg-blue-50 text-blue-900 font-semibold ring-1 ring-blue-600"
+                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                       }`}
                     >
-                      <Icon className={`h-4 w-4 ${act.color}`} />
-                      <span className="font-medium text-[11px]">{act.label}</span>
+                      <Icon className="h-4 w-4 text-blue-600" />
+                      <span className="text-xs">{act.label}</span>
                     </button>
                   );
                 })}
@@ -616,23 +600,23 @@ export const AuthorityDashboard: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-mono text-slate-300 block mb-1 font-semibold">
+              <label className="text-slate-700 block mb-1 font-semibold">
                 Reviewing Officer Name / Badge #
               </label>
               <input
                 type="text"
-                className="w-full bg-slate-900/80 border border-white/15 rounded-md p-2 text-slate-200 font-sans text-xs focus:outline-none focus:border-blue-500"
+                className="w-full bg-white border border-slate-300 rounded-md p-2 text-slate-900 font-sans text-xs focus:outline-none focus:border-blue-600"
                 value={officerName}
                 onChange={(e) => setOfficerName(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="font-mono text-slate-300 block mb-1 font-semibold">
-                Officer Notes & Tactical Directives
+              <label className="text-slate-700 block mb-1 font-semibold">
+                Officer Directives & Tactical Notes
               </label>
               <Textarea
-                placeholder="e.g., 2 motorcycle patrol officers dispatched to MG Road Metro exit. Streetlighting unit alerted."
+                placeholder="e.g. Dispatched 2 motorcycle patrol units to MG Road metro perimeter. Civic maintenance notified for streetlights."
                 value={officerNotes}
                 onChange={(e) => setOfficerNotes(e.target.value)}
                 rows={3}
@@ -650,12 +634,11 @@ export const AuthorityDashboard: React.FC = () => {
               Cancel
             </Button>
             <Button
-              variant="emergency"
               size="sm"
               onClick={handleExecuteAction}
               disabled={submittingAction}
             >
-              {submittingAction ? "Recording to Ledger..." : "Commit Action"}
+              {submittingAction ? "Recording Action..." : "Commit Action"}
             </Button>
           </DialogFooter>
         </DialogContent>

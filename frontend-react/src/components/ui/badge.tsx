@@ -3,27 +3,34 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold font-mono transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-blue-600 text-white shadow hover:bg-blue-700",
+          "border-transparent bg-blue-600 text-white shadow-sm",
         secondary:
-          "border-transparent bg-slate-800 text-slate-300 hover:bg-slate-700",
+          "border-slate-200 bg-slate-100 text-slate-700",
         destructive:
-          "border-red-500/40 bg-red-950/60 text-red-300 shadow-[0_0_10px_rgba(239,68,68,0.2)]",
-        outline: "text-slate-300 border-white/15",
+          "border-red-200 bg-red-50 text-red-700 font-semibold",
+        outline:
+          "border-slate-200 bg-white text-slate-700",
         normal:
-          "border-emerald-500/30 bg-emerald-950/50 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.15)]",
+          "border-emerald-200 bg-emerald-50 text-emerald-700",
         watch:
-          "border-blue-500/30 bg-blue-950/50 text-blue-300 shadow-[0_0_8px_rgba(59,130,246,0.15)]",
+          "border-blue-200 bg-blue-50 text-blue-700",
         concerning:
-          "border-amber-500/40 bg-amber-950/50 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.2)]",
+          "border-amber-200 bg-amber-50 text-amber-700",
         escalating:
-          "border-rose-500/50 bg-rose-950/70 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)] animate-pulse",
+          "border-orange-200 bg-orange-50 text-orange-700 font-semibold",
         critical:
-          "border-red-500 bg-red-900/80 text-white font-bold shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse",
+          "border-red-200 bg-red-50 text-red-700 font-bold",
+        success:
+          "border-emerald-200 bg-emerald-50 text-emerald-700",
+        warning:
+          "border-amber-200 bg-amber-50 text-amber-700",
+        info:
+          "border-sky-200 bg-sky-50 text-sky-700",
       },
     },
     defaultVariants: {

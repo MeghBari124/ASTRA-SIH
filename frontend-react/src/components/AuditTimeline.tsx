@@ -11,7 +11,7 @@ interface AuditTimelineProps {
 export const AuditTimeline: React.FC<AuditTimelineProps> = ({ reviews, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8 text-xs text-slate-500 font-mono">
+      <div className="flex items-center justify-center p-8 text-xs text-slate-500">
         Loading authority action audit trail...
       </div>
     );
@@ -19,76 +19,62 @@ export const AuditTimeline: React.FC<AuditTimelineProps> = ({ reviews, isLoading
 
   if (reviews.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-500 text-xs font-mono border border-dashed border-white/10 rounded-xl">
-        No authority interventions recorded yet. Actions taken will appear here in the tamper-evident audit ledger.
+      <div className="p-8 text-center text-slate-500 text-xs border border-dashed border-slate-200 rounded-lg bg-slate-50/50">
+        No authority interventions recorded yet. Actions taken will appear here in the verified audit log.
       </div>
     );
   }
 
-  const getActionIcon = (action: string) => {
-    switch (action) {
-      case "DISPATCH":
-        return <Send className="h-4 w-4 text-rose-400" />;
-      case "MONITOR":
-        return <Eye className="h-4 w-4 text-blue-400" />;
-      case "FALSE_ALARM":
-      case "CLOSE":
-        return <XCircle className="h-4 w-4 text-slate-400" />;
-      case "ESCALATE":
-        return <AlertTriangle className="h-4 w-4 text-amber-400" />;
-      default:
-        return <ShieldCheck className="h-4 w-4 text-emerald-400" />;
-    }
-  };
-
   const getActionBadge = (action: string) => {
     switch (action) {
       case "DISPATCH":
-        return <Badge variant="destructive">POLICE DISPATCHED</Badge>;
+        return <Badge variant="destructive">PATROL DISPATCHED</Badge>;
       case "MONITOR":
-        return <Badge variant="watch">ACTIVE SURVEILLANCE</Badge>;
+        return <Badge variant="watch">SURVEILLANCE ACTIVE</Badge>;
       case "FALSE_ALARM":
-        return <Badge variant="secondary">FALSE POSITIVE</Badge>;
+        return <Badge variant="secondary">FALSE ALARM</Badge>;
       case "ESCALATE":
-        return <Badge variant="concerning">ESCALATED</Badge>;
+        return <Badge variant="concerning">ESCALATED TO HQ</Badge>;
+      case "CLOSE":
+        return <Badge variant="normal">HOTSPOT RESOLVED</Badge>;
       default:
-        return <Badge variant="normal">{action}</Badge>;
+        return <Badge variant="outline">{action}</Badge>;
     }
   };
 
   return (
-    <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/10">
+    <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
       {reviews.map((rev) => (
-        <div key={rev.id} className="relative group">
-          {/* Node */}
-          <div className="absolute -left-6 top-1 h-5 w-5 rounded-full bg-slate-900 border border-white/20 flex items-center justify-center shadow-sm">
-            {getActionIcon(rev.action)}
-          </div>
+        <div key={rev.id} className="relative">
+          {/* Timeline Node */}
+          <div className="absolute -left-6 top-1.5 h-4 w-4 rounded-full bg-white border-2 border-blue-600 shadow-xs" />
 
-          <div className="p-3.5 rounded-lg bg-slate-900/60 border border-white/5 group-hover:border-white/15 transition-colors">
-            <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+          <div className="p-3.5 rounded-lg bg-white border border-slate-200/90 shadow-xs space-y-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2">
                 {getActionBadge(rev.action)}
-                <span className="text-xs font-mono text-slate-300">
-                  By: <b className="text-white">{rev.reviewed_by}</b>
+                <span className="text-xs text-slate-700">
+                  By: <strong className="font-semibold text-slate-900">{rev.reviewed_by}</strong>
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-[11px] font-mono text-slate-400">
+              <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono">
                 <Clock className="h-3 w-3" />
                 {new Date(rev.created_at).toLocaleString()}
               </div>
             </div>
 
             {rev.notes && (
-              <p className="text-xs text-slate-300 font-sans mt-1 bg-black/20 p-2 rounded border border-white/5">
+              <div className="text-xs text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200/60 leading-relaxed">
                 "{rev.notes}"
-              </p>
+              </div>
             )}
 
-            <div className="mt-2 flex items-center gap-2 text-[10px] font-mono text-slate-400">
-              <span>Pattern ID: {rev.pattern_id.slice(0, 8)}...</span>
-              <span>•</span>
-              <span className="text-emerald-400">Ledger Verified</span>
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+              <span className="font-mono">Pattern ID: {rev.pattern_id.slice(0, 10)}...</span>
+              <span className="text-emerald-700 font-medium flex items-center gap-1">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                Verified Action Logged
+              </span>
             </div>
           </div>
         </div>

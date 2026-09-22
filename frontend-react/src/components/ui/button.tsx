@@ -4,29 +4,31 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer select-none",
   {
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow hover:bg-blue-500 active:bg-blue-700",
+          "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800",
         destructive:
-          "bg-red-600 text-white shadow-sm hover:bg-red-500 active:bg-red-700",
+          "bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800",
         outline:
-          "border border-white/15 bg-transparent shadow-sm hover:bg-white/10 hover:text-white",
+          "border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100",
         secondary:
-          "bg-slate-800 text-slate-100 shadow-sm hover:bg-slate-700",
-        ghost: "hover:bg-white/10 hover:text-white",
-        link: "text-blue-400 underline-offset-4 hover:underline",
+          "bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300",
+        ghost:
+          "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+        link:
+          "text-blue-600 underline-offset-4 hover:underline",
         cyber:
-          "border border-blue-500/40 bg-blue-950/40 text-blue-300 hover:bg-blue-900/60 hover:border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]",
+          "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300",
         emergency:
-          "bg-gradient-to-r from-red-600 to-rose-700 text-white font-semibold hover:from-red-500 hover:to-rose-600 shadow-[0_0_20px_rgba(239,68,68,0.35)] animate-pulse",
+          "bg-red-600 text-white font-medium hover:bg-red-700 active:bg-red-800 shadow-sm",
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-md px-8 text-base",
+        lg: "h-10 rounded-md px-6 text-base",
         icon: "h-9 w-9",
       },
     },

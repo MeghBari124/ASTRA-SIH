@@ -1,26 +1,27 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
-import { Landing } from "@/pages/Landing";
-import { CitizenReport } from "@/pages/CitizenReport";
-import { SecurityMonitor } from "@/pages/SecurityMonitor";
+import { AppShell } from "@/components/AppShell";
+import { Overview } from "@/pages/Overview";
 import { AuthorityDashboard } from "@/pages/AuthorityDashboard";
+import { SecurityMonitor } from "@/pages/SecurityMonitor";
+import { CitizenReport } from "@/pages/CitizenReport";
+import { Alerts } from "@/pages/Alerts";
+import { Analytics } from "@/pages/Analytics";
 
 export function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
-        <Navbar />
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/citizen" element={<CitizenReport />} />
-            <Route path="/security" element={<SecurityMonitor />} />
-            <Route path="/authority" element={<AuthorityDashboard />} />
-            <Route path="*" element={<Landing />} />
-          </Routes>
-        </main>
-      </div>
+      <AppShell>
+        <Routes>
+          <Route path="/" element={<Overview />} />
+          <Route path="/authority" element={<AuthorityDashboard />} />
+          <Route path="/security" element={<SecurityMonitor />} />
+          <Route path="/citizen" element={<CitizenReport />} />
+          <Route path="/alerts" element={<Alerts />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="*" element={<Overview />} />
+        </Routes>
+      </AppShell>
     </BrowserRouter>
   );
 }
