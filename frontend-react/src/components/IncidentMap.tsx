@@ -47,18 +47,23 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
       attributionControl: false,
     });
 
-    // Carto Positron (light tiles)
+    // OpenStreetMap standard tiles (No API key required)
     L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
-        subdomains: "abcd",
         maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }
     ).addTo(map);
 
     const layerGroup = L.layerGroup().addTo(map);
     layerGroupRef.current = layerGroup;
     mapInstanceRef.current = map;
+
+    // Trigger invalidateSize to prevent partial tile rendering glitches
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
 
     if (onLocationPick) {
       map.on("click", (e: L.LeafletMouseEvent) => {
@@ -183,9 +188,9 @@ export const IncidentMap: React.FC<IncidentMapProps> = ({
   }, [patterns, incidents, selectedPatternId]);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] rounded-lg overflow-hidden border border-slate-200">
+    <div className="relative isolate w-full h-full min-h-[300px] rounded-lg overflow-hidden border border-slate-200 z-0">
       <div ref={mapContainerRef} className="w-full h-full" />
-      <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-1 bg-white/95 backdrop-blur-xs p-2.5 rounded-md border border-slate-200 shadow-xs text-[10px] text-slate-600">
+      <div className="absolute top-3 right-3 z-[10] flex flex-col gap-1 bg-white/95 backdrop-blur-xs p-2.5 rounded-md border border-slate-200 shadow-xs text-[10px] text-slate-600 pointer-events-none">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-red-600" />
           <span>Critical Hotspot</span>
