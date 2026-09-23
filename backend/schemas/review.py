@@ -4,9 +4,11 @@ from datetime import datetime
 
 class ReviewCreate(BaseModel):
     pattern_id: str
-    decision: str  # CONFIRMED_THREAT, FALSE_POSITIVE, PATROL_DISPATCHED, MONITORING
+    decision: Optional[str] = None  # CONFIRMED_THREAT, FALSE_POSITIVE, PATROL_DISPATCHED, MONITORING
+    action: Optional[str] = None
     notes: Optional[str] = None
     action_taken: Optional[str] = None
+    reviewed_by: Optional[str] = None
 
 class ReviewOut(BaseModel):
     id: str

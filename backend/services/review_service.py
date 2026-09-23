@@ -7,25 +7,36 @@ from backend.models.audit_log import AuditLog
 from backend.schemas.review import ReviewCreate
 
 def create_review(db: Session, rev_in: ReviewCreate, reviewer_id: Optional[str] = None) -> PatternReview:
+    decision_map = {
+        "DISPATCH": "PATROL_DISPATCHED",
+        "MONITOR": "MONITORING",
+        "FALSE_ALARM": "FALSE_POSITIVE",
+        "CLOSE": "FALSE_POSITIVE",
+        "ESCALATE": "CONFIRMED_THREAT",
+    }
+    raw_decision = rev_in.decision or rev_in.action or "PATROL_DISPATCHED"
+    decision = decision_map.get(raw_decision, raw_decision)
+    action_taken = rev_in.action_taken or rev_in.action or decision
+
     review = PatternReview(
         pattern_id=rev_in.pattern_id,
         reviewer_id=reviewer_id,
-        decision=rev_in.decision,
+        decision=decision,
         notes=rev_in.notes,
-        action_taken=rev_in.action_taken
+        action_taken=action_taken
     )
     db.add(review)
 
     # Update pattern status accordingly
     pattern = db.query(SafetyPattern).filter(SafetyPattern.id == rev_in.pattern_id).first()
     if pattern:
-        if rev_in.decision == "CONFIRMED_THREAT":
+        if decision == "CONFIRMED_THREAT":
             pattern.status = "VERIFIED"
-        elif rev_in.decision == "FALSE_POSITIVE":
+        elif decision == "FALSE_POSITIVE":
             pattern.status = "DISMISSED"
-        elif rev_in.decision == "PATROL_DISPATCHED":
+        elif decision == "PATROL_DISPATCHED":
             pattern.status = "ACTION_TAKEN"
-        elif rev_in.decision == "MONITORING":
+        elif decision == "MONITORING":
             pattern.status = "UNDER_REVIEW"
 
     # Cryptographic hash-chaining: link to previous audit entry

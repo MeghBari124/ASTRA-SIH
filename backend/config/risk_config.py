@@ -11,12 +11,12 @@ class Settings:
     ALGORITHM: str = "HS256"
     
     # CORS: Explicitly configured allowed origins (no wildcard with credentials)
-ALLOWED_ORIGINS: List[str] = [
-    origin.strip() for origin in os.getenv(
-        "ALLOWED_ORIGINS",
-        "https://astra-sih-p8xy.vercel.app,http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5000,http://127.0.0.1:5000"
-    ).split(",") if origin.strip()
-]
+    ALLOWED_ORIGINS: List[str] = [
+        origin.strip() for origin in os.getenv(
+            "ALLOWED_ORIGINS",
+            "https://astra-sih-p8xy.vercel.app,http://localhost:5173,http://127.0.0.1:5173,http://localhost:8000,http://127.0.0.1:8000,http://localhost:5000,http://127.0.0.1:5000"
+        ).split(",") if origin.strip()
+    ]
 
     # Database: Development defaults to SQLite; Production configures PostgreSQL + PostGIS
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./astra.db")

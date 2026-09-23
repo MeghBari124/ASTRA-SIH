@@ -304,14 +304,40 @@ export const api = {
   async createReview(
     input: ReviewCreateInput
   ): Promise<Review> {
+    const decisionMap: Record<string, string> = {
+      DISPATCH: "PATROL_DISPATCHED",
+      MONITOR: "MONITORING",
+      FALSE_ALARM: "FALSE_POSITIVE",
+      CLOSE: "FALSE_POSITIVE",
+      ESCALATE: "CONFIRMED_THREAT",
+    };
+
+    const payload = {
+      pattern_id: input.pattern_id,
+      decision: decisionMap[input.action] || input.action,
+      action: input.action,
+      action_taken: input.action,
+      notes: input.notes,
+      reviewed_by: input.reviewed_by,
+    };
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    } catch {
+      // Storage unavailable
+    }
+
     const res = await fetch(`${API_BASE}/reviews/`, {
       method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(input),
+      headers,
+      body: JSON.stringify(payload),
     });
 
     return handleResponse<Review>(res);
