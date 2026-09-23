@@ -7,8 +7,6 @@ import {
   FileText,
   Bell,
   BarChart3,
-  CheckCircle2,
-  AlertCircle,
   Radio,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
@@ -19,38 +17,66 @@ export const Sidebar: React.FC = () => {
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [alertCount, setAlertCount] = useState<number>(0);
 
-const checkHealth = () => {
-  fetch(`${import.meta.env.VITE_API_URL}/health`)
-    .then((res) => setServerOnline(res.ok))
-    .catch(() => setServerOnline(false));
+  useEffect(() => {
+    const checkHealth = () => {
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-      api.getAlerts()
+      fetch(`${apiUrl.replace(/\/$/, "")}/health`)
+        .then((res) => setServerOnline(res.ok))
+        .catch(() => setServerOnline(false));
+
+      api
+        .getAlerts()
         .then((alerts) => {
           const active = alerts.filter(
             (a) => a.status === "ACTIVE" || a.status === "NEW"
           ).length;
+
           setAlertCount(active);
         })
         .catch(() => {});
     };
 
     checkHealth();
+
     const interval = setInterval(checkHealth, 15000);
+
     return () => clearInterval(interval);
   }, []);
 
   const navItems = [
-    { path: "/", label: "Overview", icon: LayoutDashboard },
-    { path: "/authority", label: "Authority Command", icon: Shield },
-    { path: "/security", label: "Security & CCTV", icon: Video },
-    { path: "/citizen", label: "Citizen Reports", icon: FileText },
+    {
+      path: "/",
+      label: "Overview",
+      icon: LayoutDashboard,
+    },
+    {
+      path: "/authority",
+      label: "Authority Command",
+      icon: Shield,
+    },
+    {
+      path: "/security",
+      label: "Security & CCTV",
+      icon: Video,
+    },
+    {
+      path: "/citizen",
+      label: "Citizen Reports",
+      icon: FileText,
+    },
     {
       path: "/alerts",
       label: "Live Alerts",
       icon: Bell,
       badge: alertCount > 0 ? alertCount : undefined,
     },
-    { path: "/analytics", label: "Analytics & Trends", icon: BarChart3 },
+    {
+      path: "/analytics",
+      label: "Analytics & Trends",
+      icon: BarChart3,
+    },
   ];
 
   return (
@@ -61,15 +87,18 @@ const checkHealth = () => {
           <div className="h-8 w-8 rounded-md bg-blue-600 flex items-center justify-center text-white shadow-xs">
             <Shield className="h-4 w-4" />
           </div>
+
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-sm text-slate-900 tracking-tight">
                 ASTRA
               </span>
+
               <span className="text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
                 OPS
               </span>
             </div>
+
             <p className="text-[11px] text-slate-500 font-medium -mt-0.5">
               Safety Intelligence
             </p>
@@ -83,10 +112,11 @@ const checkHealth = () => {
           </span>
         </div>
 
-        {/* Nav Links */}
+        {/* Navigation */}
         <nav className="px-3 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
+
             const isActive =
               item.path === "/"
                 ? location.pathname === "/"
@@ -108,8 +138,10 @@ const checkHealth = () => {
                       isActive ? "text-blue-600" : "text-slate-400"
                     }`}
                   />
+
                   <span>{item.label}</span>
                 </div>
+
                 {item.badge !== undefined && (
                   <Badge
                     variant="destructive"
@@ -131,6 +163,7 @@ const checkHealth = () => {
             <Radio className="h-3.5 w-3.5 text-slate-400" />
             Backend Grid
           </span>
+
           <div className="flex items-center gap-1.5">
             <span
               className={`h-2 w-2 rounded-full ${
@@ -141,6 +174,7 @@ const checkHealth = () => {
                   : "bg-amber-500"
               }`}
             />
+
             <span className="text-[11px] font-medium text-slate-700">
               {serverOnline === true
                 ? "Operational"
