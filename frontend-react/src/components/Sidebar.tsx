@@ -19,11 +19,10 @@ export const Sidebar: React.FC = () => {
   const [serverOnline, setServerOnline] = useState<boolean | null>(null);
   const [alertCount, setAlertCount] = useState<number>(0);
 
-  useEffect(() => {
-    const checkHealth = () => {
-      fetch("/health")
-        .then((res) => setServerOnline(res.ok))
-        .catch(() => setServerOnline(false));
+const checkHealth = () => {
+  fetch(`${import.meta.env.VITE_API_URL}/health`)
+    .then((res) => setServerOnline(res.ok))
+    .catch(() => setServerOnline(false));
 
       api.getAlerts()
         .then((alerts) => {
